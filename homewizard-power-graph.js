@@ -1,3 +1,4 @@
+
 class HomeWizardPowerGraphCard extends HTMLElement {
 
   constructor() {
@@ -11,10 +12,11 @@ class HomeWizardPowerGraphCard extends HTMLElement {
     this.values = [];
 
     this.lastUpdate = 0;
+    this.needsRedraw = true;
 
     this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
-
+    
     const card = document.createElement("ha-card");
     card.style.background = "#111";
     card.style.borderRadius = "24px";
@@ -76,97 +78,92 @@ class HomeWizardPowerGraphCard extends HTMLElement {
     if (this.values.length > this.maxPoints) {
       this.values.shift();
     }
+    this.needsRedraw = true;
   }
 
   animate() {
-    this.draw();
-    requestAnimationFrame(this.animate);
+
+      if (this.needsRedraw) {
+
+          this.draw();
+
+          this.needsRedraw = false;
+
   }
+
+    requestAnimationFrame(this.animate);
+
+}
 
 draw() {
   const ctx = this.ctx;
   const w = this.width;
   const h = this.height;
 
+  // Achtergrond
   ctx.clearRect(0, 0, w, h);
-
   ctx.fillStyle = "#111";
   ctx.fillRect(0, 0, w, h);
 
-  const zeroY = h / 2;
+  // Nullijn
+  const zeroY = Math.round(h / 2) + 0.5;
 
-  // nullijn
-  ctx.strokeStyle = "rgba(255,255,255,0.2)";
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 1;
+
   ctx.beginPath();
   ctx.moveTo(0, zeroY);
   ctx.lineTo(w, zeroY);
   ctx.stroke();
 
+  // Nog geen grafiek als er minder dan 2 punten zijn
   if (this.values.length < 2) return;
 
+  // Schaal berekenen
   const max = Math.max(...this.values, 1);
   const min = Math.min(...this.values, -1);
   const range = Math.max(Math.abs(max), Math.abs(min));
 
   const step = w / (this.maxPoints - 1);
 
-  const points = this.values.map((v, i) => ({
-    x: i * step,
-    y: zeroY - (v / range) * (h / 2 - 10),
-    v
-  }));
+  // Punten berekenen
+const count = this.values.length;
 
-  // =========================
-  // FILL (BELANGRIJK: per segment)
-  // =========================
-  for (let i = 1; i < points.length; i++) {
+const points = this.values.map((v, i) => ({
+  x: w - (count - 1 - i) * step,
+  y: zeroY - (v / range) * (h / 2 - 10),
+  value: v
+}));
+  // Grafieklijn
+ctx.lineWidth = 2;
 
-    const p0 = points[i - 1];
-    const p1 = points[i];
+for (let i = 1; i < points.length; i++) {
 
-    const mid = (p0.v + p1.v) / 2;
+  const p0 = points[i - 1];
+  const p1 = points[i];
 
-    ctx.fillStyle = mid >= 0
-      ? "rgba(168,85,247,0.25)"
-      : "rgba(34,197,94,0.25)";
+  const color =
+    ((p0.value + p1.value) / 2) >= 0
+      ? "#8b5cf6"     // paars
+      : "#22c55e";    // groen
 
+  ctx.strokeStyle = color;
+
+  ctx.beginPath();
+  ctx.moveTo(p0.x, p0.y);
+  ctx.lineTo(p1.x, p1.y);
+  ctx.stroke();
+}
+
+  // Tijdelijke test: teken een wit bolletje op elk meetpunt
+
+  ctx.fillStyle = "#ffffff";
+
+  for (const p of points) {
     ctx.beginPath();
-    ctx.moveTo(p0.x, zeroY);
-    ctx.lineTo(p0.x, p0.y);
-    ctx.lineTo(p1.x, p1.y);
-    ctx.lineTo(p1.x, zeroY);
-    ctx.closePath();
+    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
     ctx.fill();
   }
-
-  // =========================
-  // LINE (smooth Bézier)
-  // =========================
-
-  const linePath = new Path2D();
-  linePath.moveTo(points[0].x, points[0].y);
-
-  for (let i = 1; i < points.length; i++) {
-    const p0 = points[i - 1];
-    const p1 = points[i];
-    const cx = (p0.x + p1.x) / 2;
-
-    linePath.bezierCurveTo(cx, p0.y, cx, p1.y, p1.x, p1.y);
-  }
-
-  // glow
-  ctx.save();
-  ctx.shadowBlur = 14;
-  ctx.shadowColor = "rgba(168,85,247,0.35)";
-  ctx.strokeStyle = "rgba(168,85,247,0.9)";
-  ctx.lineWidth = 2.2;
-  ctx.stroke(linePath);
-  ctx.restore();
-
-  // main line
-  ctx.strokeStyle = "rgba(255,255,255,0.9)";
-  ctx.lineWidth = 1.2;
-  ctx.stroke(linePath);
 }
 
   getCardSize() {
