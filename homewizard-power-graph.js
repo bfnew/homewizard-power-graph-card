@@ -114,6 +114,46 @@ interpolate(p0, p1, p2, p3, t) {
     )
   };
 }
+
+drawSmoothLine(points) {
+
+  const ctx = this.ctx;
+
+  if (points.length < 2) return;
+
+  ctx.lineWidth = 2;
+
+  for (let i = 0; i < points.length - 1; i++) {
+
+    const p0 = points[Math.max(0, i - 1)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(points.length - 1, i + 2)];
+
+    const color =
+      ((p1.value + p2.value) / 2) >= 0
+        ? "#8b5cf6"
+        : "#22c55e";
+
+    ctx.strokeStyle = color;
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+
+    for (let t = 0.05; t <= 1; t += 0.05) {
+
+      const p = this.interpolate(p0, p1, p2, p3, t);
+
+      ctx.lineTo(p.x, p.y);
+
+    }
+
+    ctx.stroke();
+
+  }
+
+}
+
 draw() {
   const ctx = this.ctx;
   const w = this.width;
@@ -154,25 +194,9 @@ const points = this.values.map((v, i) => ({
   value: v
 }));
   // Grafieklijn
-ctx.lineWidth = 2;
 
-for (let i = 1; i < points.length; i++) {
+this.drawSmoothLine(points);
 
-  const p0 = points[i - 1];
-  const p1 = points[i];
-
-  const color =
-    ((p0.value + p1.value) / 2) >= 0
-      ? "#8b5cf6"     // paars
-      : "#22c55e";    // groen
-
-  ctx.strokeStyle = color;
-
-  ctx.beginPath();
-  ctx.moveTo(p0.x, p0.y);
-  ctx.lineTo(p1.x, p1.y);
-  ctx.stroke();
-}
 
   // Tijdelijke test: teken een wit bolletje op elk meetpunt
 
