@@ -129,7 +129,7 @@ buildSpline(points) {
     const p2 = points[i + 1];
     const p3 = points[Math.min(points.length - 1, i + 2)];
 
-    for (let t = 0.05; t <= 1; t += 0.05) {
+    for (let t = 0.05; t <= 1; t += 0.02) {
 
       const p = this.interpolate(p0, p1, p2, p3, t);
 
@@ -167,7 +167,7 @@ drawSmoothLine(points) {
     ctx.beginPath();
     ctx.moveTo(p1.x, p1.y);
 
-    for (let t = 0.05; t <= 1; t += 0.05) {
+    for (let t = 0.05; t <= 1; t += 0.02) {
 
       const p = this.interpolate(p0, p1, p2, p3, t);
 
@@ -198,7 +198,7 @@ drawFill(points, zeroY) {
     ctx.beginPath();
     ctx.moveTo(p1.x, zeroY);
 
-    for (let t = 0; t <= 1; t += 0.05) {
+    for (let t = 0; t <= 1; t += 0.02) {
 
       const p = this.interpolate(p0, p1, p2, p3, t);
       ctx.lineTo(p.x, p.y);
