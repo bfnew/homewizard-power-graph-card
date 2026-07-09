@@ -114,7 +114,34 @@ interpolate(p0, p1, p2, p3, t) {
     )
   };
 }
+buildSpline(points) {
 
+  const path = new Path2D();
+
+  if (points.length < 2) return path;
+
+  path.moveTo(points[0].x, points[0].y);
+
+  for (let i = 0; i < points.length - 1; i++) {
+
+    const p0 = points[Math.max(0, i - 1)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(points.length - 1, i + 2)];
+
+    for (let t = 0.05; t <= 1; t += 0.05) {
+
+      const p = this.interpolate(p0, p1, p2, p3, t);
+
+      path.lineTo(p.x, p.y);
+
+    }
+
+  }
+
+  return path;
+
+}
 drawSmoothLine(points) {
 
   const ctx = this.ctx;
