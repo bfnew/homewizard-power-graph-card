@@ -263,15 +263,7 @@ this.drawFill(points, zeroY);
 this.drawSmoothLine(points);
 
 
-  // Tijdelijke test: teken een wit bolletje op elk meetpunt
 
-  ctx.fillStyle = "#ffffff";
-
-  for (const p of points) {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-    ctx.fill();
-  }
 }
 
   getCardSize() {
