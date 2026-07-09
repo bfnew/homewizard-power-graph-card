@@ -159,10 +159,6 @@ drawFill(points, zeroY) {
 
   if (points.length < 2) return;
 
-  ctx.beginPath();
-
-  ctx.moveTo(points[0].x, zeroY);
-
   for (let i = 0; i < points.length - 1; i++) {
 
     const p0 = points[Math.max(0, i - 1)];
@@ -170,22 +166,28 @@ drawFill(points, zeroY) {
     const p2 = points[i + 1];
     const p3 = points[Math.min(points.length - 1, i + 2)];
 
-    for (let t = 0.05; t <= 1; t += 0.05) {
+    const avg = (p1.value + p2.value) / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x, zeroY);
+
+    for (let t = 0; t <= 1; t += 0.05) {
 
       const p = this.interpolate(p0, p1, p2, p3, t);
-
       ctx.lineTo(p.x, p.y);
 
     }
 
+    ctx.lineTo(p2.x, zeroY);
+    ctx.closePath();
+
+    ctx.fillStyle =
+      avg >= 0
+        ? "rgba(124,58,237,0.30)"
+        : "rgba(22,163,74,0.30)";
+
+    ctx.fill();
   }
-
-  ctx.lineTo(points[points.length - 1].x, zeroY);
-
-  ctx.closePath();
-
-  ctx.fillStyle = "rgba(255,255,255,0.15)";
-  ctx.fill();
 
 }
 draw() {
