@@ -114,6 +114,27 @@ interpolate(p0, p1, p2, p3, t) {
     )
   };
 }
+
+findZeroCrossing(p1, p2, zeroY) {
+
+  const dy = p2.y - p1.y;
+
+  if (Math.abs(dy) < 0.0001) return null;
+
+  const t = (zeroY - p1.y) / dy;
+
+  if (t <= 0 || t >= 1) return null;
+
+  return {
+    x: p1.x + (p2.x - p1.x) * t,
+    y: zeroY,
+    t
+  };
+
+}
+
+
+
 buildSpline(points) {
 
   const path = new Path2D();
