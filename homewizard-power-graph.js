@@ -210,74 +210,60 @@ buildSpline(points) {
   return path;
 
 }
+
 drawSmoothLine(points) {
 
   const ctx = this.ctx;
 
-  if (points.length < 2) return;
+  const segments = this.buildRenderSegments(points);
 
   ctx.lineWidth = 2;
 
-  for (let i = 0; i < points.length - 1; i++) {
+  for (const samples of segments) {
 
-    const p0 = points[Math.max(0, i - 1)];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[Math.min(points.length - 1, i + 2)];
+    if (samples.length < 2) continue;
 
     const color =
-      ((p1.value + p2.value) / 2) >= 0
+      samples[0].value >= 0
         ? "#8b5cf6"
         : "#22c55e";
 
     ctx.strokeStyle = color;
 
     ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
+    ctx.moveTo(samples[0].x, samples[0].y);
 
-    for (let t = 0.05; t <= 1; t += 0.02) {
-
-      const p = this.interpolate(p0, p1, p2, p3, t);
-
-      ctx.lineTo(p.x, p.y);
-
+    for (let i = 1; i < samples.length; i++) {
+      ctx.lineTo(samples[i].x, samples[i].y);
     }
 
     ctx.stroke();
-
   }
 
 }
+
 drawFill(points, zeroY) {
 
   const ctx = this.ctx;
 
-  if (points.length < 2) return;
+  const segments = this.buildRenderSegments(points);
 
-  for (let i = 0; i < points.length - 1; i++) {
+  for (const samples of segments) {
 
-    const p0 = points[Math.max(0, i - 1)];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[Math.min(points.length - 1, i + 2)];
-
-    const avg = (p1.value + p2.value) / 2;
+    if (samples.length < 2) continue;
 
     ctx.beginPath();
-    ctx.moveTo(p1.x, zeroY);
+    ctx.moveTo(samples[0].x, zeroY);
 
-    for (let t = 0; t <= 1; t += 0.02) {
-
-      const p = this.interpolate(p0, p1, p2, p3, t);
+    for (const p of samples) {
       ctx.lineTo(p.x, p.y);
-
     }
 
-    ctx.lineTo(p2.x, zeroY);
+    ctx.lineTo(samples[samples.length - 1].x, zeroY);
     ctx.closePath();
 
     ctx.fillStyle =
-      avg >= 0
+      samples[0].value >= 0
         ? "rgba(124,58,237,0.30)"
         : "rgba(22,163,74,0.30)";
 
@@ -285,6 +271,10 @@ drawFill(points, zeroY) {
   }
 
 }
+
+
+
+
 draw() {
   const ctx = this.ctx;
   const w = this.width;
