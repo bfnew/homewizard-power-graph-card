@@ -253,64 +253,46 @@ buildSpline(points) {
 
 }
 
-drawSmoothLine(points, zeroY) {
+drawSmoothLine(points) {
 
   const ctx = this.ctx;
-
   const segments = this.buildRenderSegments(points);
 
-ctx.lineWidth = 2.4;
+  ctx.lineWidth = 2.4;
 
-for (const samples of segments) {
+  for (const samples of segments) {
 
-    if (samples.length < 2) continue;
+    const parts = this.splitSamples(samples);
 
-    const color =
-      samples[0].value >= 0
+    for (const part of parts) {
+
+      if (part.samples.length < 2) continue;
+
+      const color = part.positive
         ? "#A855F7"
         : "#16A34A";
 
-    ctx.save();
+      ctx.save();
 
-    ctx.shadowBlur = 12;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.shadowColor = color;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2.4;
+      ctx.shadowBlur = 12;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.shadowColor = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.4;
 
-ctx.beginPath();
-ctx.moveTo(samples[0].x, samples[0].y);
+      ctx.beginPath();
+      ctx.moveTo(part.samples[0].x, part.samples[0].y);
 
-for (let i = 1; i < samples.length; i++) {
+      for (let i = 1; i < part.samples.length; i++) {
+        ctx.lineTo(part.samples[i].x, part.samples[i].y);
+      }
 
-  const prev = samples[i - 1];
-  const curr = samples[i];
+      ctx.stroke();
+      ctx.restore();
 
-  // Gaat de grafiek door de nullijn?
-if ((prev.value >= 0) !== (curr.value >= 0)) {
+    }
 
-  ctx.lineTo(curr.x, curr.y);
-  ctx.stroke();
-
-  ctx.strokeStyle =
-    curr.value >= 0
-      ? "#A855F7"
-      : "#16A34A";
-
-  ctx.shadowColor = ctx.strokeStyle;
-
-  ctx.beginPath();
-  ctx.moveTo(curr.x, curr.y);
-}
-
-
-  ctx.lineTo(curr.x, curr.y);
-}
-
-ctx.stroke();
-
-ctx.restore();
   }
 
 }
@@ -358,6 +340,30 @@ draw() {
   ctx.fillStyle = "#111";
   ctx.fillRect(0, 0, w, h);
 
+// Actuele waarde linksboven
+const currentValue =
+  this.values.length > 0
+    ? this.values[this.values.length - 1]
+    : 0;
+
+const absValue = Math.abs(currentValue);
+
+const text =
+  absValue >= 1000
+    ? (currentValue / 1000).toFixed(2) + " kW"
+    : Math.round(currentValue) + " W";
+
+ctx.font = "bold 28px Arial";
+ctx.textAlign = "left";
+ctx.textBaseline = "top";
+
+ctx.fillStyle =
+  currentValue >= 0
+    ? "#A855F7"
+    : "#16A34A";
+
+ctx.fillText(text, 20, 18);
+
   // Nullijn
   const zeroY = Math.round(h / 2) + 0.5;
 
@@ -378,7 +384,7 @@ draw() {
   const range = Math.max(Math.abs(max), Math.abs(min));
 
   const step = w / (this.maxPoints - 1);
-
+  
   // Punten berekenen
 const count = this.values.length;
 
@@ -391,7 +397,7 @@ const points = this.values.map((v, i) => ({
 
 this.drawFill(points, zeroY);
 
-this.drawSmoothLine(points, zeroY);
+this.drawSmoothLine(points);
 
 
 
