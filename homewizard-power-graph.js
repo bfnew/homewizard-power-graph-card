@@ -161,6 +161,48 @@ buildRenderSegments(points) {
 
 }
 
+splitSamples(samples) {
+
+  const result = [];
+
+  if (samples.length === 0) return result;
+
+  let current = [samples[0]];
+  let currentPositive = samples[0].value >= 0;
+
+  for (let i = 1; i < samples.length; i++) {
+
+    const sample = samples[i];
+    const positive = sample.value >= 0;
+
+    if (positive !== currentPositive) {
+
+      result.push({
+        positive: currentPositive,
+        samples: current
+      });
+
+      current = [sample];
+      currentPositive = positive;
+
+    } else {
+
+      current.push(sample);
+
+    }
+
+  }
+
+  result.push({
+    positive: currentPositive,
+    samples: current
+  });
+
+  return result;
+
+}
+
+
 
 findZeroCrossing(p1, p2, zeroY) {
 
@@ -211,33 +253,64 @@ buildSpline(points) {
 
 }
 
-drawSmoothLine(points) {
+drawSmoothLine(points, zeroY) {
 
   const ctx = this.ctx;
 
   const segments = this.buildRenderSegments(points);
 
-  ctx.lineWidth = 2;
+ctx.lineWidth = 2.4;
 
-  for (const samples of segments) {
+for (const samples of segments) {
 
     if (samples.length < 2) continue;
 
     const color =
       samples[0].value >= 0
-        ? "#8b5cf6"
-        : "#22c55e";
+        ? "#A855F7"
+        : "#16A34A";
 
+    ctx.save();
+
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.shadowColor = color;
     ctx.strokeStyle = color;
+    ctx.lineWidth = 2.4;
 
-    ctx.beginPath();
-    ctx.moveTo(samples[0].x, samples[0].y);
+ctx.beginPath();
+ctx.moveTo(samples[0].x, samples[0].y);
 
-    for (let i = 1; i < samples.length; i++) {
-      ctx.lineTo(samples[i].x, samples[i].y);
-    }
+for (let i = 1; i < samples.length; i++) {
 
-    ctx.stroke();
+  const prev = samples[i - 1];
+  const curr = samples[i];
+
+  // Gaat de grafiek door de nullijn?
+if ((prev.value >= 0) !== (curr.value >= 0)) {
+
+  ctx.lineTo(curr.x, curr.y);
+  ctx.stroke();
+
+  ctx.strokeStyle =
+    curr.value >= 0
+      ? "#A855F7"
+      : "#16A34A";
+
+  ctx.shadowColor = ctx.strokeStyle;
+
+  ctx.beginPath();
+  ctx.moveTo(curr.x, curr.y);
+}
+
+
+  ctx.lineTo(curr.x, curr.y);
+}
+
+ctx.stroke();
+
+ctx.restore();
   }
 
 }
@@ -318,7 +391,7 @@ const points = this.values.map((v, i) => ({
 
 this.drawFill(points, zeroY);
 
-this.drawSmoothLine(points);
+this.drawSmoothLine(points, zeroY);
 
 
 
