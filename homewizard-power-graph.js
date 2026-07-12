@@ -334,6 +334,12 @@ draw() {
   const ctx = this.ctx;
   const w = this.width;
   const h = this.height;
+  const topPadding = 35;
+  const bottomPadding = 10;
+  const graphHeight = h - topPadding - bottomPadding;
+  const leftPadding = 150;
+  const graphWidth = w - leftPadding;
+
 
   // Achtergrond
   ctx.clearRect(0, 0, w, h);
@@ -411,13 +417,13 @@ ctx.fillStyle = "#d1d5db";
 ctx.fillText("Export", 32, 111);
 
   // Nullijn
-  const zeroY = Math.round(h / 2) + 0.5;
+  const zeroY = Math.round(topPadding + graphHeight / 2) + 0.5;
 
   ctx.strokeStyle = "#ffffff";
   ctx.lineWidth = 1;
 
   ctx.beginPath();
-  ctx.moveTo(0, zeroY);
+  ctx.moveTo(leftPadding, zeroY);
   ctx.lineTo(w, zeroY);
   ctx.stroke();
 
@@ -429,14 +435,14 @@ ctx.fillText("Export", 32, 111);
   const min = Math.min(...this.values, -1);
   const range = Math.max(Math.abs(max), Math.abs(min));
 
-  const step = w / (this.maxPoints - 1);
+  const step = graphWidth / (this.maxPoints - 1);
   
   // Punten berekenen
 const count = this.values.length;
 
 const points = this.values.map((v, i) => ({
-  x: w - (count - 1 - i) * step,
-  y: zeroY - (v / range) * (h / 2 - 10),
+  x: leftPadding + graphWidth - (count - 1 - i) * step,
+  y: zeroY - (v / range) * (graphHeight / 2),
   value: v
 }));
   // Grafieklijn
