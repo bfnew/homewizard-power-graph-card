@@ -138,7 +138,28 @@ sampleSplineSegment(p0, p1, p2, p3, step = 0.02) {
 
 }
 
+buildRenderSegments(points) {
 
+  const segments = [];
+
+  if (points.length < 2) return segments;
+
+  for (let i = 0; i < points.length - 1; i++) {
+
+    const p0 = points[Math.max(0, i - 1)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(points.length - 1, i + 2)];
+
+    segments.push(
+      this.sampleSplineSegment(p0, p1, p2, p3)
+    );
+
+  }
+
+  return segments;
+
+}
 
 
 findZeroCrossing(p1, p2, zeroY) {
