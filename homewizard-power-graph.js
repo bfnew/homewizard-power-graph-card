@@ -115,6 +115,32 @@ interpolate(p0, p1, p2, p3, t) {
   };
 }
 
+sampleSplineSegment(p0, p1, p2, p3, step = 0.02) {
+
+  const points = [];
+
+  for (let t = 0; t <= 1; t += step) {
+
+    const p = this.interpolate(p0, p1, p2, p3, t);
+
+    // Vermogenswaarde op dit punt interpoleren
+    const value = p1.value + (p2.value - p1.value) * t;
+
+    points.push({
+      x: p.x,
+      y: p.y,
+      value
+    });
+
+  }
+
+  return points;
+
+}
+
+
+
+
 findZeroCrossing(p1, p2, zeroY) {
 
   const dy = p2.y - p1.y;
