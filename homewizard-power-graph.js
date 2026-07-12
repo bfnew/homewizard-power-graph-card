@@ -353,7 +353,16 @@ const text =
     ? (currentValue / 1000).toFixed(2) + " kW"
     : Math.round(currentValue) + " W";
 
-ctx.font = "bold 28px Arial";
+  const valueText =
+  absValue >= 1000
+    ? (currentValue / 1000).toFixed(2)
+    : Math.round(currentValue).toString();
+
+const unitText =
+  absValue >= 1000
+    ? "kW"
+    : "W";
+
 ctx.textAlign = "left";
 ctx.textBaseline = "top";
 
@@ -362,7 +371,44 @@ ctx.fillStyle =
     ? "#A855F7"
     : "#16A34A";
 
-ctx.fillText(text, 20, 18);
+// Titel
+ctx.font = "12px Arial";
+ctx.fillStyle = "#9ca3af";
+ctx.fillText("VERMOGEN", 20, 12);
+
+
+
+// Groot getal
+ctx.font = "bold 34px Arial";
+ctx.fillText(valueText, 20, 28);
+
+// Kleine eenheid
+ctx.font = "16px Arial";
+ctx.fillText(unitText, 22, 66);
+
+// Import / Export indicatoren
+
+const importActive = currentValue >= 0;
+const exportActive = currentValue < 0;
+
+// Import bolletje
+ctx.beginPath();
+ctx.arc(20, 95, 5, 0, Math.PI * 2);
+ctx.fillStyle = importActive ? "#A855F7" : "#555555";
+ctx.fill();
+
+ctx.font = "14px Arial";
+ctx.fillStyle = "#d1d5db";
+ctx.fillText("Import", 32, 88);
+
+// Export bolletje
+ctx.beginPath();
+ctx.arc(20, 118, 5, 0, Math.PI * 2);
+ctx.fillStyle = exportActive ? "#16A34A" : "#555555";
+ctx.fill();
+
+ctx.fillStyle = "#d1d5db";
+ctx.fillText("Export", 32, 111);
 
   // Nullijn
   const zeroY = Math.round(h / 2) + 0.5;
