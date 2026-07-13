@@ -230,6 +230,31 @@ getNiceScale(maxValue) {
 
 }
 
+formatPower(value) {
+
+  const negative = value < 0;
+  const abs = Math.abs(value);
+
+  let text;
+
+  if (abs >= 1000) {
+
+    const kw = abs / 1000;
+
+    text =
+      Number.isInteger(kw)
+        ? `${kw} kW`
+        : `${kw.toFixed(1)} kW`;
+
+  } else {
+
+    text = `${Math.round(abs)} W`;
+
+  }
+
+  return negative ? `-${text}` : text;
+
+}
 
 
 
@@ -369,7 +394,8 @@ draw() {
   const bottomPadding = 10;
   const graphHeight = h - topPadding - bottomPadding;
   const leftPadding = 150;
-  const graphWidth = w - leftPadding;
+  const rightPadding = 10;
+  const graphWidth = w - leftPadding - rightPadding;
 
 
   // Achtergrond
@@ -452,7 +478,7 @@ ctx.fillText("Export", 32, 111);
 
   // Rasterlijnen
 ctx.lineWidth = 1;
-ctx.strokeStyle = "#303030";
+ctx.strokeStyle = "#2b2b2b";
 
 const spacing = graphHeight / 4;
 
@@ -461,13 +487,13 @@ for (let i = 1; i <= 2; i++) {
   // boven
   ctx.beginPath();
   ctx.moveTo(leftPadding, zeroY - i * spacing);
-  ctx.lineTo(w, zeroY - i * spacing);
+  ctx.lineTo(leftPadding + graphWidth, zeroY - i * spacing);
   ctx.stroke();
 
   // onder
   ctx.beginPath();
   ctx.moveTo(leftPadding, zeroY + i * spacing);
-  ctx.lineTo(w, zeroY + i * spacing);
+  ctx.lineTo(leftPadding + graphWidth, zeroY + i * spacing);
   ctx.stroke();
 
 }
@@ -475,7 +501,7 @@ for (let i = 1; i <= 2; i++) {
   ctx.font = "12px Arial";
   ctx.textAlign = "right";
   ctx.textBaseline = "middle";
-  ctx.fillStyle = "#7a7a7a";
+  ctx.fillStyle = "#8a8a8a";
 
   const labelX = leftPadding - 10;
 
@@ -486,12 +512,12 @@ for (let i = 1; i <= 2; i++) {
   ctx.fillText("-2", labelX, zeroY + spacing * 2);
 
 
-  ctx.strokeStyle = "#ffffff";
+  ctx.strokeStyle = "#606060";
   ctx.lineWidth = 1;
 
   ctx.beginPath();
   ctx.moveTo(leftPadding, zeroY);
-  ctx.lineTo(w, zeroY);
+  ctx.lineTo(leftPadding + graphWidth, zeroY);
   ctx.stroke();
 
   // Nog geen grafiek als er minder dan 2 punten zijn
