@@ -202,6 +202,37 @@ splitSamples(samples) {
 
 }
 
+getNiceScale(maxValue) {
+
+  const steps = [
+    10,
+    20,
+    50,
+    100,
+    200,
+    500,
+    1000,
+    2000,
+    5000,
+    10000,
+    20000
+  ];
+
+  const target = Math.abs(maxValue) / 2;
+
+  for (const step of steps) {
+    if (target <= step) {
+      return step;
+    }
+  }
+
+  return steps[steps.length - 1];
+
+}
+
+
+
+
 
 
 findZeroCrossing(p1, p2, zeroY) {
@@ -419,6 +450,42 @@ ctx.fillText("Export", 32, 111);
   // Nullijn
   const zeroY = Math.round(topPadding + graphHeight / 2) + 0.5;
 
+  // Rasterlijnen
+ctx.lineWidth = 1;
+ctx.strokeStyle = "#303030";
+
+const spacing = graphHeight / 4;
+
+for (let i = 1; i <= 2; i++) {
+
+  // boven
+  ctx.beginPath();
+  ctx.moveTo(leftPadding, zeroY - i * spacing);
+  ctx.lineTo(w, zeroY - i * spacing);
+  ctx.stroke();
+
+  // onder
+  ctx.beginPath();
+  ctx.moveTo(leftPadding, zeroY + i * spacing);
+  ctx.lineTo(w, zeroY + i * spacing);
+  ctx.stroke();
+
+}
+
+  ctx.font = "12px Arial";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#7a7a7a";
+
+  const labelX = leftPadding - 10;
+
+  ctx.fillText("+2", labelX, zeroY - spacing * 2);
+  ctx.fillText("+1", labelX, zeroY - spacing);
+  ctx.fillText("0", labelX, zeroY);
+  ctx.fillText("-1", labelX, zeroY + spacing);
+  ctx.fillText("-2", labelX, zeroY + spacing * 2);
+
+
   ctx.strokeStyle = "#ffffff";
   ctx.lineWidth = 1;
 
@@ -434,7 +501,9 @@ ctx.fillText("Export", 32, 111);
   const max = Math.max(...this.values, 1);
   const min = Math.min(...this.values, -1);
   const range = Math.max(Math.abs(max), Math.abs(min));
-
+  const scaleStep = this.getNiceScale(range);
+  
+  
   const step = graphWidth / (this.maxPoints - 1);
   
   // Punten berekenen
