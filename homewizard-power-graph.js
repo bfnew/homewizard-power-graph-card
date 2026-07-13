@@ -476,6 +476,12 @@ ctx.fillText("Export", 32, 111);
   // Nullijn
   const zeroY = Math.round(topPadding + graphHeight / 2) + 0.5;
 
+  // Schaal berekenen
+  const max = Math.max(...this.values, 1);
+  const min = Math.min(...this.values, -1);
+  const range = Math.max(Math.abs(max), Math.abs(min));
+  const scaleStep = this.getNiceScale(range);
+
   // Rasterlijnen
 ctx.lineWidth = 1;
 ctx.strokeStyle = "#2b2b2b";
@@ -505,11 +511,11 @@ for (let i = 1; i <= 2; i++) {
 
   const labelX = leftPadding - 10;
 
-  ctx.fillText("+2", labelX, zeroY - spacing * 2);
-  ctx.fillText("+1", labelX, zeroY - spacing);
+  ctx.fillText(this.formatPower(scaleStep * 2), labelX, zeroY - spacing * 2);
+  ctx.fillText(this.formatPower(scaleStep), labelX, zeroY - spacing);
   ctx.fillText("0", labelX, zeroY);
-  ctx.fillText("-1", labelX, zeroY + spacing);
-  ctx.fillText("-2", labelX, zeroY + spacing * 2);
+  ctx.fillText(this.formatPower(-scaleStep), labelX, zeroY + spacing);
+  ctx.fillText(this.formatPower(-scaleStep * 2), labelX, zeroY + spacing * 2);
 
 
   ctx.strokeStyle = "#606060";
@@ -523,11 +529,7 @@ for (let i = 1; i <= 2; i++) {
   // Nog geen grafiek als er minder dan 2 punten zijn
   if (this.values.length < 2) return;
 
-  // Schaal berekenen
-  const max = Math.max(...this.values, 1);
-  const min = Math.min(...this.values, -1);
-  const range = Math.max(Math.abs(max), Math.abs(min));
-  const scaleStep = this.getNiceScale(range);
+ 
   
   
   const step = graphWidth / (this.maxPoints - 1);
